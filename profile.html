@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Profile - Mine</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #f0f6ff;
+    min-height: 100vh;
+    max-width: 420px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    background: linear-gradient(135deg, #a8e6f0 0%, #c8f0e8 100%);
+    padding: 10px 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #333;
+    font-weight: 700;
+  }
+  .status-bar .time { font-size: 14px; font-weight: 800; }
+  .status-icons { display: flex; gap: 4px; align-items: center; font-size: 11px; }
+
+  /* HEADER / PROFILE AREA */
+  .header {
+    background: linear-gradient(160deg, #a8e6f0 0%, #c8f0e8 60%, #e8f8f0 100%);
+    padding: 16px 20px 24px;
+    position: relative;
+  }
+
+  .profile-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #e0e0e0, #fff);
+    border: 3px solid #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .profile-info { flex: 1; }
+  .name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .username {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a2e;
+  }
+  .gender-badge {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #4fc3f7, #0288d1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #fff;
+  }
+  .uid-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .copy-btn {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #aaa;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #888;
+    cursor: pointer;
+  }
+  .arrow-right {
+    color: #bbb;
+    font-size: 18px;
+    margin-left: auto;
+    cursor: pointer;
+  }
+
+  /* STATS */
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    text-align: center;
+  }
+  .stat-item {}
+  .stat-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .stat-divider {
+    width: 1px;
+    background: rgba(0,0,0,0.08);
+    align-self: stretch;
+  }
+
+  /* SVIP BANNER */
+  .svip-banner {
+    margin: 0 16px 12px;
+    background: linear-gradient(110deg, #5c3317 0%, #8b4513 40%, #a0522d 70%, #c47a35 100%);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(100,50,10,0.3);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%, 100% { box-shadow: 0 4px 16px rgba(100,50,10,0.3); }
+    50% { box-shadow: 0 4px 24px rgba(180,120,30,0.5); }
+  }
+  .svip-left {}
+  .svip-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffd700;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .svip-title .crown-small { font-size: 14px; }
+  .svip-desc {
+    color: rgba(255,220,150,0.85);
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 3px;
+  }
+  .svip-crown {
+    font-size: 44px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(255,200,0,0.5));
+  }
+
+  /* MENU CARDS */
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    padding: 18px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 2px;
+    border-radius: 10px;
+    transition: background 0.15s;
+  }
+  .menu-item:active { background: #f5f5f5; }
+
+  .menu-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+
+  .icon-wallet  { background: linear-gradient(135deg, #ff7043, #ff8f00); }
+  .icon-vip     { background: linear-gradient(135deg, #ffa000, #ffca28); }
+  .icon-level   { background: linear-gradient(135deg, #5c6bc0, #7e57c2); }
+  .icon-invite  { background: linear-gradient(135deg, #ec407a, #f06292); }
+  .icon-family  { background: linear-gradient(135deg, #26a69a, #4db6ac); }
+  .icon-relation{ background: linear-gradient(135deg, #f48fb1, #f06292); }
+  .icon-fanclub { background: linear-gradient(135deg, #ba68c8, #ce93d8); }
+  .icon-task    { background: linear-gradient(135deg, #4fc3f7, #0288d1); }
+  .icon-mall    { background: linear-gradient(135deg, #f48fb1, #e91e63); }
+  .icon-dress   { background: linear-gradient(135deg, #4dd0e1, #00acc1); }
+  .icon-honor   { background: linear-gradient(135deg, #9575cd, #7e57c2); }
+  .icon-gift    { background: linear-gradient(135deg, #4dd0e1, #0097a7); }
+
+  .menu-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #444;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  /* LIST MENU */
+  .list-card {
+    background: #fff;
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+  }
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .list-item:active { background: #f9f9f9; }
+  .list-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .list-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 700;
+    color: #222;
+  }
+  .list-arrow { color: #ccc; font-size: 16px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: sticky;
+    bottom: 0;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0 16px;
+    z-index: 100;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    flex: 1;
+  }
+  .nav-icon { font-size: 22px; filter: grayscale(1) opacity(0.4); }
+  .nav-label { font-size: 10px; font-weight: 700; color: #aaa; }
+  .nav-item.active .nav-icon { filter: none; }
+  .nav-item.active .nav-label { color: #4fc3f7; }
+
+  .nav-message-wrap { position: relative; }
+  .notif-dot {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    background: #f44336;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+  }
+
+  /* padding bottom for sticky nav */
+  .scroll-content { padding-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span class="time">12:16</span>
+  <div class="status-icons">
+    <span>1.31 MB/s</span>
+    <span>🌙</span>
+    <span>📶</span>
+    <span>4G</span>
+    <span>🔋63</span>
+  </div>
+</div>
+
+<div class="scroll-content">
+
+  <!-- PROFILE HEADER -->
+  <div class="header">
+    <div class="profile-row">
+      <div class="avatar-wrap">
+        <div class="avatar">🧑</div>
+      </div>
+      <div class="profile-info">
+        <div class="name-row">
+          <span class="username">Happy Khan</span>
+          <div class="gender-badge">♂</div>
+        </div>
+        <div class="uid-row">
+          <span>ID: 45531196</span>
+          <div class="copy-btn" onclick="copyUID()">⧉</div>
+        </div>
+      </div>
+      <span class="arrow-right">›</span>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-val">1</div>
+        <div class="stat-label">Follow</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-val">0</div>
+        <div class="stat-label">Fans</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-val">0</div>
+        <div class="stat-label">Sent</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-val">0.0</div>
+        <div class="stat-label">Received</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVIP BANNER -->
+  <div class="svip-banner" onclick="alert('SVIP Page')">
+    <div class="svip-left">
+      <div class="svip-title">
+        <span class="crown-small">👑</span>
+        <span>SVIP</span>
+      </div>
+      <div class="svip-desc">Exclusive functions, dress up, privileges; Unlock Elite Status. ›</div>
+    </div>
+    <div class="svip-crown">👑</div>
+  </div>
+
+  <!-- MENU CARD 1: Wallet, VIP, Level, Invite -->
+  <div class="card">
+    <div class="menu-grid">
+      <div class="menu-item" onclick="goTo('Wallet')">
+        <div class="menu-icon icon-wallet">👛</div>
+        <div class="menu-label">Wallet</div>
+      </div>
+      <div class="menu-item" onclick="goTo('VIP Pro')">
+        <div class="menu-icon icon-vip">⭐</div>
+        <div class="menu-label">VIP Pro</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Level')">
+        <div class="menu-icon icon-level">🎖️</div>
+        <div class="menu-label">Level</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Invitation rewards')">
+        <div class="menu-icon icon-invite">🎁</div>
+        <div class="menu-label">Invitation rewards</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU CARD 2: Family, Relation, Fan club, Task, Mall, Dress, Honor, Gift -->
+  <div class="card">
+    <div class="menu-grid">
+      <div class="menu-item" onclick="goTo('Family')">
+        <div class="menu-icon icon-family">👨‍👩‍👧</div>
+        <div class="menu-label">Family</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Relation')">
+        <div class="menu-icon icon-relation">💝</div>
+        <div class="menu-label">Relation</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Fan club')">
+        <div class="menu-icon icon-fanclub">🌟</div>
+        <div class="menu-label">Fan club</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Task center')">
+        <div class="menu-icon icon-task">📋</div>
+        <div class="menu-label">Task center</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Mall')">
+        <div class="menu-icon icon-mall">🛍️</div>
+        <div class="menu-label">Mall</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Dress up')">
+        <div class="menu-icon icon-dress">👕</div>
+        <div class="menu-label">Dress up</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Honor')">
+        <div class="menu-icon icon-honor">🏅</div>
+        <div class="menu-label">Honor</div>
+      </div>
+      <div class="menu-item" onclick="goTo('Gift Collection')">
+        <div class="menu-icon icon-gift">🎀</div>
+        <div class="menu-label">Gift Collection</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST MENU -->
+  <div class="list-card">
+    <div class="list-item" onclick="goTo('Verify')">
+      <div class="list-icon">🛡️</div>
+      <div class="list-text">Verify</div>
+      <span class="list-arrow">›</span>
+    </div>
+    <div class="list-item" onclick="goTo('Gift Code')">
+      <div class="list-icon">🎟️</div>
+      <div class="list-text">Gift Code</div>
+      <span class="list-arrow">›</span>
+    </div>
+    <div class="list-item" onclick="goTo('Help')">
+      <div class="list-icon">❓</div>
+      <div class="list-text">Help</div>
+      <span class="list-arrow">›</span>
+    </div>
+    <div class="list-item" onclick="goTo('Facebook')">
+      <div class="list-icon">🔵</div>
+      <div class="list-text">Facebook</div>
+      <span class="list-arrow">›</span>
+    </div>
+    <div class="list-item" onclick="goTo('Language')">
+      <div class="list-icon">🔤</div>
+      <div class="list-text">Language</div>
+      <span class="list-arrow">›</span>
+    </div>
+    <div class="list-item" onclick="goTo('Settings')">
+      <div class="list-icon">⚙️</div>
+      <div class="list-text">Settings</div>
+      <span class="list-arrow">›</span>
+    </div>
+  </div>
+
+</div><!-- end scroll-content -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item" onclick="setActive(this)">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Home</div>
+  </div>
+  <div class="nav-item" onclick="setActive(this)">
+    <div class="nav-icon">🎮</div>
+    <div class="nav-label">Game</div>
+  </div>
+  <div class="nav-item" onclick="setActive(this)">
+    <div class="nav-icon">✨</div>
+    <div class="nav-label">Moment</div>
+  </div>
+  <div class="nav-item" onclick="setActive(this)">
+    <div class="nav-message-wrap">
+      <div class="nav-icon">⚡</div>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="nav-label">Message</div>
+  </div>
+  <div class="nav-item active" onclick="setActive(this)">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Mine</div>
+  </div>
+</div>
+
+<script>
+  function goTo(page) {
+    alert('Navigate to: ' + page);
+  }
+  function copyUID() {
+    navigator.clipboard.writeText('45531196').then(() => {
+      alert('UID copied!');
+    }).catch(() => {
+      alert('UID: 45531196');
+    });
+  }
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
