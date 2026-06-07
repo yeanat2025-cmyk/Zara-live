@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home — VoiceLive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+    --bg:#0f0f1a; --surface:#1a1a2e;
+    --card-from:#3a1060; --card-to:#1a0050;
+    --accent:#a855f7; --accent2:#ec4899; --teal:#06b6d4;
+    --text:#fff; --muted:rgba(255,255,255,0.5);
+    --nav-h:68px;
+  }
+  body{
+    font-family:'DM Sans',sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; flex-direction:column;
+    padding-bottom:calc(var(--nav-h) + 16px);
+    overflow-x:hidden;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar{
+    display:flex; align-items:center; gap:10px;
+    padding:14px 16px; position:sticky; top:0; z-index:50;
+    background:rgba(15,15,26,0.92); backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .app-logo{
+    width:38px; height:38px; border-radius:10px;
+    background:linear-gradient(135deg,#a855f7,#ec4899);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; flex-shrink:0;
+  }
+  .search-bar{
+    flex:1; height:40px; border-radius:20px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);
+    display:flex; align-items:center; gap:8px; padding:0 14px;
+    cursor:pointer; transition:border-color 0.2s;
+  }
+  .search-bar:hover{ border-color:var(--accent); }
+  .search-bar span{ color:var(--muted); font-size:14px; }
+  .topbar-right{ display:flex; align-items:center; gap:10px; }
+  .trophy-btn{
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.08); cursor:pointer;
+    font-size:18px; flex-shrink:0;
+    border:none; color:#fff; transition:background 0.2s;
+  }
+  .avatar-btn{
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.08); cursor:pointer;
+    font-size:18px; flex-shrink:0;
+    border:2px solid var(--accent); overflow:hidden;
+  }
+  .avatar-btn img{ width:100%; height:100%; object-fit:cover; }
+
+  /* ── BANNER SLIDER ── */
+  .banner-wrap{
+    margin:12px 16px 0;
+    border-radius:18px; overflow:hidden; position:relative;
+    height:136px; background:#1a1a2e;
+  }
+  .banner-wrap.hidden{ display:none; }
+  .banner-slider{ display:flex; transition:transform 0.5s cubic-bezier(.4,0,.2,1); height:100%; }
+  .banner-slide{
+    min-width:100%; height:100%; position:relative; overflow:hidden;
+  }
+  .banner-slide img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  /* Gradient overlay on slides */
+  .banner-slide::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(to top, rgba(10,5,20,0.55) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .banner-dots{
+    position:absolute; bottom:9px; left:50%; transform:translateX(-50%);
+    display:flex; gap:5px; z-index:2;
+  }
+  .banner-dot{
+    width:6px; height:6px; border-radius:3px;
+    background:rgba(255,255,255,0.35); transition:all 0.3s;
+  }
+  .banner-dot.active{ width:20px; background:var(--accent); }
+
+  /* ── COUNTRY TABS ── */
+  .tabs-wrap{
+    display:flex; gap:8px; overflow-x:auto; padding:14px 16px 0;
+    scrollbar-width:none;
+  }
+  .tabs-wrap::-webkit-scrollbar{ display:none; }
+  .tab{
+    flex-shrink:0; padding:7px 16px; border-radius:20px;
+    font-size:13px; font-weight:500; cursor:pointer;
+    border:1.5px solid rgba(255,255,255,0.15);
+    background:transparent; color:var(--text);
+    transition:all 0.2s; white-space:nowrap;
+  }
+  .tab.active{
+    background:var(--accent); border-color:var(--accent); font-weight:600;
+  }
+  .tab:hover:not(.active){ border-color:var(--accent); }
+
+  /* ── ROOMS ── */
+  .rooms-section{ padding:14px 16px 0; }
+
+  .room-card{
+    border-radius:16px; margin-bottom:12px;
+    overflow:hidden; cursor:pointer;
+    display:flex; align-items:center; padding:14px 16px;
+    background:linear-gradient(135deg, var(--card-from), var(--card-to));
+    position:relative; transition:transform 0.15s, box-shadow 0.2s;
+    animation:fadeUp 0.35s ease both; min-height:90px;
+  }
+  .room-card:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(168,85,247,0.25); }
+  .room-card:nth-child(2n)  { --card-from:#1a0840; --card-to:#3d1278; }
+  .room-card:nth-child(3n)  { --card-from:#0f1060; --card-to:#2a1a80; }
+  .room-card:nth-child(4n)  { --card-from:#260840; --card-to:#5a1080; }
+  .room-card:nth-child(5n)  { --card-from:#1a1040; --card-to:#3a2090; }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .room-card::before{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%,rgba(255,255,255,0.3) 0%,transparent 100%),
+      radial-gradient(1px 1px at 75% 15%,rgba(255,255,255,0.2) 0%,transparent 100%),
+      radial-gradient(1px 1px at 45% 75%,rgba(255,255,255,0.25) 0%,transparent 100%),
+      radial-gradient(1px 1px at 85% 65%,rgba(255,255,255,0.2) 0%,transparent 100%);
+  }
+
+  .room-thumb{
+    width:72px; height:72px; border-radius:12px; flex-shrink:0;
+    object-fit:cover; margin-right:14px;
+    background:rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+    overflow:hidden;
+  }
+  .room-thumb img{ width:100%; height:100%; object-fit:cover; border-radius:12px; }
+  .room-info{ flex:1; min-width:0; }
+  .room-name{
+    font-family:'Syne',sans-serif; font-size:16px; font-weight:700;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px;
+  }
+  .room-desc{
+    font-size:13px; color:rgba(255,255,255,0.6);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:8px;
+  }
+  .room-meta{ display:flex; align-items:center; justify-content:space-between; }
+  .fire-count{ font-size:13px; color:rgba(255,255,255,0.8); }
+  .public-badge{
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px; padding:3px 10px;
+    font-size:11px; color:rgba(255,255,255,0.7);
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    background:rgba(13,13,24,0.97); backdrop-filter:blur(18px);
+    border-top:1px solid rgba(255,255,255,0.07);
+    display:flex; align-items:center; justify-content:space-around;
+    height:var(--nav-h); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .nav-item{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    cursor:pointer; flex:1; padding:6px 0;
+    border-radius:12px; transition:background 0.2s; position:relative;
+  }
+  .nav-item:hover{ background:rgba(255,255,255,0.05); }
+  .nav-icon-img{
+    width:26px; height:26px; object-fit:contain;
+    filter:brightness(0.6) saturate(0);
+    transition:filter 0.2s;
+  }
+  .nav-item.active .nav-icon-img{
+    filter:brightness(1) saturate(1) drop-shadow(0 0 6px #a855f7);
+  }
+  .nav-label{ font-size:10px; color:var(--muted); transition:color 0.2s; }
+  .nav-item.active .nav-label{ color:var(--accent); font-weight:600; }
+
+  /* Go Live center button */
+  .nav-golive{
+    flex:1; display:flex; flex-direction:column; align-items:center;
+    gap:4px; cursor:pointer; position:relative; top:-18px;
+  }
+  .golive-circle{
+    width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg,#7c3aed,#ec4899);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 20px rgba(124,58,237,0.55);
+    animation:glPulse 2.2s ease-in-out infinite;
+    border:3px solid rgba(255,255,255,0.15);
+  }
+  .golive-circle img{ width:28px; height:28px; object-fit:contain; filter:brightness(10); }
+  @keyframes glPulse{
+    0%,100%{box-shadow:0 4px 20px rgba(124,58,237,0.55)}
+    50%{box-shadow:0 4px 32px rgba(168,85,247,0.85), 0 0 0 8px rgba(124,58,237,0.12)}
+  }
+  .golive-label{ font-size:10px; color:var(--accent); font-weight:600; margin-top:-4px; }
+
+  /* ── SKELETON ── */
+  .skeleton{
+    background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);
+    background-size:200% 100%; animation:shimmer 1.4s infinite;
+    border-radius:16px; height:90px; margin-bottom:12px;
+  }
+  @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+  /* ── TOAST ── */
+  .toast{
+    position:fixed; bottom:calc(var(--nav-h) + 14px); left:50%; transform:translateX(-50%);
+    background:rgba(26,26,46,0.97); border:1px solid rgba(168,85,247,0.3);
+    padding:10px 22px; border-radius:22px;
+    color:#fff; font-size:13px; opacity:0;
+    transition:opacity 0.3s; white-space:nowrap; z-index:99;
+    pointer-events:none;
+  }
+  .toast.show{ opacity:1; }
+
+  /* Empty state */
+  .empty-state{
+    text-align:center; padding:50px 20px;
+    color:rgba(255,255,255,0.3); font-size:14px;
+  }
+  .empty-state div{ font-size:40px; margin-bottom:12px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="app-logo">🎙️</div>
+  <div class="search-bar">
+    <span>🔍</span>
+    <span>Search People...</span>
+  </div>
+  <div class="topbar-right">
+    <button class="trophy-btn">🏆</button>
+    <div class="avatar-btn" id="topAvatar">👤</div>
+  </div>
+</div>
+
+<!-- BANNER SLIDER (hidden if no slides) -->
+<div class="banner-wrap" id="bannerWrap">
+  <div class="banner-slider" id="bannerSlider"></div>
+  <div class="banner-dots" id="bannerDots"></div>
+</div>
+
+<!-- COUNTRY TABS -->
+<div class="tabs-wrap" id="tabsWrap">
+  <div class="tab active" onclick="filterCountry('All',this)">All</div>
+  <div class="tab" onclick="filterCountry('Bangladesh',this)">🇧🇩 Bangladesh</div>
+  <div class="tab" onclick="filterCountry('India',this)">🇮🇳 India</div>
+  <div class="tab" onclick="filterCountry('Pakistan',this)">🇵🇰 Pakistan</div>
+  <div class="tab" onclick="filterCountry('Saudi Arabia',this)">🇸🇦 Saudi Arabia</div>
+  <div class="tab" onclick="filterCountry('USA',this)">🇺🇸 USA</div>
+  <div class="tab" onclick="filterCountry('UK',this)">🇬🇧 UK</div>
+</div>
+
+<!-- ROOMS -->
+<div class="rooms-section" id="roomsSection">
+  <div class="skeleton"></div>
+  <div class="skeleton"></div>
+  <div class="skeleton"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="navHome" onclick="navClick('home')">
+    <img class="nav-icon-img" src="assets/home.png" alt="Home">
+    <div class="nav-label">Home</div>
+  </div>
+  <div class="nav-item" id="navExplore" onclick="navClick('explore')">
+    <img class="nav-icon-img" src="assets/explore.png" alt="Explore">
+    <div class="nav-label">Moment</div>
+  </div>
+
+  <!-- GO LIVE CENTER -->
+  <div class="nav-golive" onclick="createRoom()">
+    <div class="golive-circle">
+      <img src="assets/golive.png" alt="Go Live">
+    </div>
+    <div class="golive-label">Go Live</div>
+  </div>
+
+  <div class="nav-item" id="navMessage" onclick="navClick('message')">
+    <img class="nav-icon-img" src="assets/message.png" alt="Messages">
+    <div class="nav-label">Messages</div>
+  </div>
+  <div class="nav-item" id="navProfile" onclick="goProfile()">
+    <img class="nav-icon-img" src="assets/profile.png" alt="Profile">
+    <div class="nav-label">Profile</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { checkAuth, getUserProfile, db, auth, signOut }
+    from './firebase.js';
+  import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  let currentUser = null;
+  let allRooms = [];
+  let activeFilter = 'All';
+
+  // ── Slide images config ──────────────────
+  // Add paths here; missing images are auto-skipped
+  const SLIDE_IMAGES = [
+    'assets/slide1.jpg',
+    'assets/slide2.jpg',
+    'assets/slide3.jpg',
+    'assets/slide4.jpg',
+    'assets/slide5.jpg',
+  ];
+
+  // ── Auth ─────────────────────────────────
+  checkAuth(async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    currentUser = user;
+    const profile = await getUserProfile(user.uid);
+    if (!profile?.gender)   { location.href = 'gender.html'; return; }
+    if (!profile?.nickname) { location.href = 'basicinfo.html'; return; }
+
+    if (profile.photoBase64) {
+      const av = document.getElementById('topAvatar');
+      av.innerHTML = `<img src="${profile.photoBase64}" style="width:100%;height:100%;object-fit:cover">`;
+    }
+
+    initBanner();
+    loadRooms();
+  });
+
+  // ── Banner ───────────────────────────────
+  function initBanner() {
+    const slider  = document.getElementById('bannerSlider');
+    const dotsWrap= document.getElementById('bannerDots');
+    const wrap    = document.getElementById('bannerWrap');
+
+    // Test which images actually load
+    let loaded = [];
+    let checked = 0;
+    SLIDE_IMAGES.forEach((src, i) => {
+      const img = new Image();
+      img.onload  = () => { loaded.push({ src, i }); finish(); };
+      img.onerror = () => { finish(); };
+      img.src = src;
+    });
+
+    function finish() {
+      checked++;
+      if (checked < SLIDE_IMAGES.length) return;
+      // Sort by original index
+      loaded.sort((a,b) => a.i - b.i);
+
+      if (loaded.length === 0) {
+        wrap.classList.add('hidden');
+        return;
+      }
+
+      loaded.forEach(({ src }, idx) => {
+        const slide = document.createElement('div');
+        slide.className = 'banner-slide';
+        slide.innerHTML = `<img src="${src}" alt="slide${idx+1}">`;
+        slider.appendChild(slide);
+
+        const dot = document.createElement('div');
+        dot.className = 'banner-dot' + (idx === 0 ? ' active' : '');
+        dotsWrap.appendChild(dot);
+      });
+
+      if (loaded.length <= 1) return; // No auto-slide for single image
+
+      let curr = 0;
+      const dots = dotsWrap.querySelectorAll('.banner-dot');
+      setInterval(() => {
+        curr = (curr + 1) % loaded.length;
+        slider.style.transform = `translateX(-${curr * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === curr));
+      }, 3500);
+    }
+  }
+
+  // ── Rooms ─────────────────────────────────
+  function loadRooms() {
+    const q = query(
+      collection(db, 'rooms'),
+      where('isLive', '==', true),
+      orderBy('createdAt', 'desc')
+    );
+    onSnapshot(q, (snap) => {
+      allRooms = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderRooms();
+    }, () => {
+      allRooms = getDemoRooms();
+      renderRooms();
+    });
+  }
+
+  function getDemoRooms() {
+    return [
+      { id:'r1', name:'My Test Room',  desc:'This is a test room.',              fire:2, country:'Bangladesh', thumb:'🌿' },
+      { id:'r2', name:'Mayabi Room',   desc:'Chill vibes only',                  fire:5, country:'Bangladesh', thumb:'🌸' },
+      { id:'r3', name:'Hello World',   desc:'Open for everyone',                 fire:1, country:'India',      thumb:'🌙' },
+      { id:'r4', name:'Official Room', desc:'BD super admin / manager / agency', fire:6, country:'Bangladesh', thumb:'👑' },
+      { id:'r5', name:'Adda Ghor',     desc:'Welcome to the party',              fire:5, country:'Bangladesh', thumb:'🎉' },
+    ];
+  }
+
+  function renderRooms() {
+    const section = document.getElementById('roomsSection');
+    const filtered = activeFilter === 'All'
+      ? allRooms
+      : allRooms.filter(r => r.country === activeFilter);
+
+    if (!filtered.length) {
+      section.innerHTML = `
+        <div class="empty-state">
+          <div>🔇</div>No rooms found right now
+        </div>`;
+      return;
+    }
+    section.innerHTML = filtered.map((r, i) => `
+      <div class="room-card" style="animation-delay:${i*0.06}s"
+           onclick="window.joinRoom('${r.id}','${encodeURIComponent(r.name)}')">
+        <div class="room-thumb">${r.thumb || '🎙️'}</div>
+        <div class="room-info">
+          <div class="room-name">${r.name}</div>
+          <div class="room-desc">${r.desc || ''}</div>
+          <div class="room-meta">
+            <span class="fire-count">🔥 ${r.fire || 0}</span>
+            <span class="public-badge">🔒 Public Room</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── Filter ────────────────────────────────
+  window.filterCountry = (country, el) => {
+    activeFilter = country;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderRooms();
+  };
+
+  // ── Create Room ───────────────────────────
+  window.createRoom = async () => {
+    const name = prompt('Room name:');
+    if (!name?.trim()) return;
+    try {
+      const ref = await addDoc(collection(db, 'rooms'), {
+        name: name.trim(), desc: '',
+        hostUid: currentUser.uid,
+        isLive: true, fire: 0,
+        country: 'Bangladesh',
+        thumb: '🎙️',
+        createdAt: serverTimestamp()
+      });
+      showToast('Room created! 🎉');
+      sessionStorage.setItem('roomId', ref.id);
+      sessionStorage.setItem('roomName', name.trim());
+      location.href = 'voice-live-app.html';
+    } catch(e) {
+      showToast('Demo mode — Firebase not configured');
+    }
+  };
+
+  // ── Join Room ─────────────────────────────
+  window.joinRoom = (id, name) => {
+    sessionStorage.setItem('roomId', id);
+    sessionStorage.setItem('roomName', decodeURIComponent(name));
+    location.href = 'voice-live-app.html';
+  };
+
+  // ── Profile ───────────────────────────────
+  window.goProfile = () => {
+    location.href = 'profile.html';
+  };
+
+  // ── Nav click ─────────────────────────────
+  window.navClick = (page) => {
+    const map = { home:'', explore:'explore.html', message:'messages.html' };
+    if (page === 'home') return;
+    showToast(page.charAt(0).toUpperCase() + page.slice(1) + ' coming soon!');
+  };
+
+  // ── Toast ─────────────────────────────────
+  let _tt;
+  window.showToast = (msg) => {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(_tt);
+    _tt = setTimeout(() => t.classList.remove('show'), 2600);
+  };
+</script>
+</body>
+</html>

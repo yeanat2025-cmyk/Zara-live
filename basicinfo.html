@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Info — VoiceLive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'DM Sans',sans-serif;
+    background:#fff; min-height:100vh;
+    display:flex; flex-direction:column; overflow-x:hidden;
+  }
+
+  .wave-banner{
+    height:160px; position:relative; flex-shrink:0;
+    background:linear-gradient(180deg,#0d47a1 0%,#1565c0 50%,#1976d2 100%);
+    overflow:hidden;
+  }
+  .wave-banner svg{
+    position:absolute; bottom:0; left:0; right:0; width:100%;
+  }
+
+  .avatar-wrap{
+    position:relative; width:90px; height:90px;
+    margin:-45px auto 0; z-index:10;
+  }
+  .avatar-circle{
+    width:90px; height:90px; border-radius:50%;
+    background:#e0e0e0; border:3px solid #fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:42px; overflow:hidden; cursor:pointer;
+    position:relative;
+  }
+  .avatar-circle img{ width:100%; height:100%; object-fit:cover; }
+  .avatar-overlay{
+    position:absolute; inset:0; border-radius:50%;
+    background:rgba(0,0,0,0.45);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity 0.2s;
+  }
+  .avatar-circle:hover .avatar-overlay{ opacity:1; }
+  .avatar-overlay span{ font-size:22px; }
+
+  .upload-progress{
+    position:absolute; inset:0; border-radius:50%;
+    background:rgba(0,0,0,0.6);
+    display:none; align-items:center; justify-content:center;
+    flex-direction:column; gap:4px;
+  }
+  .upload-progress.show{ display:flex; }
+  .upload-progress span{ color:#fff; font-size:11px; font-weight:600; }
+  .spinner{
+    width:24px; height:24px; border:2px solid rgba(255,255,255,0.3);
+    border-top-color:#00bcd4; border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .camera-badge{
+    position:absolute; bottom:0; right:0;
+    width:28px; height:28px; border-radius:50%;
+    background:#00bcd4; border:2px solid #fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; cursor:pointer; z-index:2;
+  }
+  input[type="file"]{ display:none; }
+
+  .content{ padding:20px 24px 130px; }
+  .about-label{ color:#00bcd4; font-size:14px; font-weight:500; margin-bottom:4px; margin-top:16px; }
+  .title{
+    font-family:'Syne',sans-serif; font-size:26px; font-weight:800;
+    color:#0d47a1; margin-bottom:24px;
+  }
+  .field-label{ font-size:13px; color:#555; margin-bottom:8px; font-weight:500; }
+  .field-wrap{ margin-bottom:16px; }
+
+  input[type="text"], input[type="date"], .select-field{
+    width:100%; height:52px; border-radius:12px;
+    border:none; background:#f5f5f5;
+    padding:0 16px; font-family:'DM Sans',sans-serif;
+    font-size:15px; color:#222; outline:none;
+    transition:box-shadow 0.2s;
+  }
+  input[type="text"]:focus, input[type="date"]:focus{
+    box-shadow:0 0 0 2px #00bcd4; background:#f0fdff;
+  }
+  input::placeholder{ color:#bbb; }
+
+  .phone-row{ display:flex; gap:10px; }
+  .country-code{
+    width:80px; height:52px; border-radius:12px;
+    background:#f5f5f5; display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:600; color:#222; flex-shrink:0;
+  }
+  .phone-row input{ flex:1; width:auto; }
+
+  .select-field{
+    display:flex; align-items:center; gap:8px;
+    cursor:pointer; user-select:none; position:relative;
+  }
+  .select-field select{
+    position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+  }
+
+  .submit-wrap{
+    position:fixed; bottom:0; left:0; right:0;
+    padding:20px 24px 36px; background:#fff;
+  }
+  .submit-btn{
+    width:100%; height:58px; border-radius:14px;
+    background:linear-gradient(90deg,#00bcd4,#26c6da);
+    color:#fff; border:none; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:16px; font-weight:700;
+    letter-spacing:2px;
+    box-shadow:0 6px 20px rgba(0,188,212,0.4);
+    transition:opacity 0.2s, transform 0.15s;
+  }
+  .submit-btn:hover{ opacity:0.9; transform:translateY(-1px); }
+  .submit-btn:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+
+  .toast{
+    position:fixed; bottom:110px; left:50%; transform:translateX(-50%);
+    background:#333; padding:10px 20px; border-radius:20px;
+    color:#fff; font-size:13px; opacity:0; transition:opacity 0.3s;
+    white-space:nowrap; z-index:99;
+  }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+<!-- Wave Banner -->
+<div class="wave-banner">
+  <svg viewBox="0 0 375 60" preserveAspectRatio="none">
+    <path d="M0,30 C60,60 120,0 187,30 C254,60 314,0 375,30 L375,60 L0,60 Z" fill="#fff"/>
+    <path d="M0,45 C80,20 160,55 240,35 C290,22 340,50 375,40 L375,60 L0,60 Z" fill="rgba(255,255,255,0.3)"/>
+  </svg>
+</div>
+
+<!-- Avatar -->
+<div class="avatar-wrap">
+  <div class="avatar-circle" id="avatarCircle" onclick="document.getElementById('photoInput').click()">
+    <span id="avatarEmoji">👤</span>
+    <img id="avatarImg" src="" style="display:none" alt="avatar">
+    <div class="avatar-overlay"><span>📷</span></div>
+    <div class="upload-progress" id="uploadProgress">
+      <div class="spinner"></div>
+      <span>Uploading…</span>
+    </div>
+  </div>
+  <div class="camera-badge" onclick="document.getElementById('photoInput').click()">📷</div>
+  <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelect(event)">
+</div>
+
+<!-- Form -->
+<div class="content">
+  <div class="about-label">About you</div>
+  <div class="title">Basic Info</div>
+
+  <div class="field-wrap">
+    <div class="field-label">Nickname</div>
+    <input type="text" id="nickname" placeholder="Enter your nickname" maxlength="20">
+  </div>
+
+  <div class="field-wrap">
+    <div class="field-label">Country</div>
+    <div class="select-field" id="countryDisplay">
+      🇧🇩 Bangladesh
+      <select id="countrySelect" onchange="updateCountry(this)">
+        <option value="BD|🇧🇩|Bangladesh|+880" selected>🇧🇩 Bangladesh (+880)</option>
+        <option value="IN|🇮🇳|India|+91">🇮🇳 India (+91)</option>
+        <option value="PK|🇵🇰|Pakistan|+92">🇵🇰 Pakistan (+92)</option>
+        <option value="US|🇺🇸|USA|+1">🇺🇸 USA (+1)</option>
+        <option value="GB|🇬🇧|UK|+44">🇬🇧 UK (+44)</option>
+        <option value="SA|🇸🇦|Saudi Arabia|+966">🇸🇦 Saudi Arabia (+966)</option>
+        <option value="AE|🇦🇪|UAE|+971">🇦🇪 UAE (+971)</option>
+        <option value="MY|🇲🇾|Malaysia|+60">🇲🇾 Malaysia (+60)</option>
+        <option value="SG|🇸🇬|Singapore|+65">🇸🇬 Singapore (+65)</option>
+        <option value="AF|🇦🇫|Afghanistan|+93">🇦🇫 Afghanistan (+93)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-wrap">
+    <div class="field-label">Mobile Number</div>
+    <div class="phone-row">
+      <div class="country-code" id="dialCode">+880</div>
+      <input type="text" id="phone" placeholder="Phone number" maxlength="15" inputmode="numeric">
+    </div>
+  </div>
+
+  <div class="field-wrap">
+    <div class="field-label">Date of Birth</div>
+    <input type="date" id="dob" max="">
+  </div>
+</div>
+
+<div class="submit-wrap">
+  <button class="submit-btn" id="submitBtn" onclick="submitInfo()">SUBMIT</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { checkAuth, saveUserProfile, getUserProfile } from './firebase.js';
+
+  // ── Cloudinary config ─────────────────────
+  // আপনার Cloudinary dashboard থেকে এই values বসান
+  const CLOUD_NAME   = 'YOUR_CLOUD_NAME';   // e.g. 'dxyz123'
+  const UPLOAD_PRESET = 'YOUR_UPLOAD_PRESET'; // unsigned preset name
+
+  let currentUser  = null;
+  let photoUrl     = null; // Cloudinary URL
+  let isUploading  = false;
+  let countryData  = { code:'BD', flag:'🇧🇩', name:'Bangladesh', dial:'+880' };
+
+  // DOB max = today
+  document.getElementById('dob').max = new Date().toISOString().split('T')[0];
+
+  checkAuth(async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    currentUser = user;
+    const profile = await getUserProfile(user.uid);
+    if (profile?.nickname) document.getElementById('nickname').value = profile.nickname;
+    if (profile?.phone)    document.getElementById('phone').value    = profile.phone;
+    if (profile?.dob)      document.getElementById('dob').value      = profile.dob;
+    if (profile?.photoUrl) {
+      showAvatar(profile.photoUrl);
+      photoUrl = profile.photoUrl;
+    }
+  });
+
+  // ── Country select ────────────────────────
+  window.updateCountry = (sel) => {
+    const [code, flag, name, dial] = sel.value.split('|');
+    countryData = { code, flag, name, dial };
+    document.getElementById('countryDisplay').childNodes[0].textContent = `${flag} ${name} `;
+    document.getElementById('dialCode').textContent = dial;
+  };
+
+  // ── Photo select → Cloudinary upload ─────
+  window.handlePhotoSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // File size check (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Photo max size 5MB!'); return;
+    }
+
+    // Show local preview immediately
+    const localUrl = URL.createObjectURL(file);
+    showAvatar(localUrl);
+
+    // Show upload spinner
+    isUploading = true;
+    document.getElementById('uploadProgress').classList.add('show');
+    document.getElementById('submitBtn').disabled = true;
+
+    try {
+      const url = await uploadToCloudinary(file);
+      photoUrl = url;
+      showAvatar(url); // replace blob with final URL
+      showToast('Photo uploaded! ✅');
+    } catch (err) {
+      showToast('Upload failed: ' + err.message);
+      photoUrl = null;
+      // Reset avatar
+      document.getElementById('avatarImg').style.display = 'none';
+      document.getElementById('avatarEmoji').style.display = '';
+    } finally {
+      isUploading = false;
+      document.getElementById('uploadProgress').classList.remove('show');
+      document.getElementById('submitBtn').disabled = false;
+      // Clear input so same file can be re-selected
+      e.target.value = '';
+    }
+  };
+
+  async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('folder', 'voicelive/avatars');
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      { method: 'POST', body: formData }
+    );
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'Upload error');
+    }
+
+    const data = await res.json();
+    // Return optimized URL: auto format + quality, 200x200 crop
+    return data.secure_url.replace('/upload/', '/upload/f_auto,q_auto,w_200,h_200,c_fill/');
+  }
+
+  function showAvatar(url) {
+    document.getElementById('avatarEmoji').style.display = 'none';
+    const img = document.getElementById('avatarImg');
+    img.src = url;
+    img.style.display = 'block';
+  }
+
+  // ── Submit ────────────────────────────────
+  window.submitInfo = async () => {
+    if (isUploading) { showToast('Photo upload হচ্ছে, একটু অপেক্ষা করুন…'); return; }
+
+    const nickname = document.getElementById('nickname').value.trim();
+    const phone    = document.getElementById('phone').value.trim();
+    const dob      = document.getElementById('dob').value;
+
+    if (!nickname)          { showToast('Nickname দাও!'); return; }
+    if (nickname.length < 2){ showToast('Nickname কমপক্ষে 2 character!'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    try {
+      await saveUserProfile(currentUser.uid, {
+        nickname,
+        phone:       phone || null,
+        dialCode:    countryData.dial,
+        country:     countryData.name,
+        countryCode: countryData.code,
+        dob:         dob || null,
+        photoUrl:    photoUrl || null,   // Cloudinary URL
+        photoBase64: null,               // no base64
+        onboardingDone: true,
+      });
+      location.href = 'home.html';
+    } catch (e) {
+      showToast('Error: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = 'SUBMIT';
+    }
+  };
+
+  // ── Toast ─────────────────────────────────
+  let _tt;
+  window.showToast = function(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(_tt);
+    _tt = setTimeout(() => t.classList.remove('show'), 2600);
+  };
+</script>
+</body>
+</html>
